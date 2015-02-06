@@ -92,8 +92,7 @@ public class WebSSOProfileConsumer {
     /**
      * Trust engine used to verify SAML signatures
      */
-  //  private ExplicitKeySignatureTrustEngine trustEngine;
-    /**
+  /*
      * Cache storing SAML request objects
      */
     private ProtocolCache protocolCache;
@@ -103,8 +102,7 @@ public class WebSSOProfileConsumer {
     //begin RKM
     private KeyStoreCredentialResolver keyManager;
     private String decryptionKey;
-  //  private String signatureVerificationKey;
-    private boolean encrypted_Assertions;
+  
     //end RKM
 
    
@@ -113,7 +111,7 @@ public class WebSSOProfileConsumer {
      * @param metadata metadata manager
      * @throws MetadataProviderException error initializing the provider
      */
-    public WebSSOProfileConsumer(MetadataManager metadata,KeyStoreCredentialResolver keyManager, String decryptionKey, String svkey) throws MetadataProviderException {
+    public WebSSOProfileConsumer(MetadataManager metadata,KeyStoreCredentialResolver keyManager, String decryptionKey) throws MetadataProviderException {
     	  //Credential sigverificationCredential= getIDPSignatureVerificationCredential();
     	
     	  MetadataCredentialResolver mdCredResolver = new MetadataCredentialResolver(metadata);
@@ -122,7 +120,7 @@ public class WebSSOProfileConsumer {
    
           this.decryptionKey=decryptionKey;
         this.keyManager=keyManager;
-        //this.signatureVerificationKey=svkey;
+        
     }
 
     /**
@@ -221,9 +219,10 @@ public class WebSSOProfileConsumer {
         }
 
         Assertion subjectAssertion = null;
-        
-    	//RKM
-        if(encrypted_Assertions){
+       
+      //RKM  if we have encrpted assertions decrypt and process them otherwise assertions aren't encrypted and 
+        //verify normally
+        if(response.getEncryptedAssertions().size()>0){
         // Verify assertions
         
         subjectAssertion = handleEncryptedAssertions(context, request,
@@ -256,6 +255,7 @@ log.debug("Creating SAMLCedential from subject name and assertion");
 		Assertion b=null;
         for (EncryptedAssertion a : assertionList) {
         	 b=decryptAssertion(a);
+        	 
             verifyAssertion(b, request, context);
            /* if (b.getAuthnStatements().size() > 0) {
             	log.debug("Assertion subject: " + b.getSubject());
@@ -488,28 +488,7 @@ log.debug("Creating SAMLCedential from subject name and assertion");
              throw new SAMLRuntimeException("Key with ID '" + decryptionKey + "' wasn't found in the configured key store");
          }
     }
-    /*
-    private Credential getIDPSignatureVerificationCredential() {
-    	 CriteriaSet cs = new CriteriaSet();
-         EntityIDCriteria criteria = new EntityIDCriteria(signatureVerificationKey);
-         cs.add(criteria);
-         Iterator<Credential> credentialIterator=null;
-         try{
-          credentialIterator = keyManager.resolve(cs).iterator();
-         } catch(Exception e){
-      	   log.error("Exception occured resolving signature verification key for alias:  " + signatureVerificationKey);
-      	   log.debug(e.getMessage());
-         }
-         if (credentialIterator !=null && credentialIterator.hasNext()) {
-        	 log.debug("Signature verification key successfully resolved from keystore.");
-             return credentialIterator.next();
-         } else {
-             log.error("Key with ID '" + signatureVerificationKey + "' wasn't found in the configured key store");
-             throw new SAMLRuntimeException("Key with ID '" + signatureVerificationKey + "' wasn't found in the configured key store");
-         }
-    }
-    
-    */
+   
     
     /*author:  ron meadows
      * RKM
@@ -572,31 +551,7 @@ log.debug("Creating SAMLCedential from subject name and assertion");
          criteriaSet.add(new UsageCriteria(UsageType.SIGNING));
          log.debug("Verifying signature", signature);
          trustEngine.validate(signature, criteriaSet);
-    /*
-    	SAMLSignatureProfileValidator validator = new SAMLSignatureProfileValidator();
-        log.debug("Verifying signature" + signature);
-        validator.validate(signature);
-     
-       
-       
-        X509Credential  sigverificationCredential= (X509Credential)getIDPSignatureVerificationCredential();
-        log.debug("Signature verification credential found for cert:  " + signatureVerificationKey);
-    	
-        SignatureValidator signatureValidator = new SignatureValidator(sigverificationCredential);
-
-        //try to validate
-        try
-        {
-            signatureValidator.validate(signature);
-          
-        }
-        catch (ValidationException ve)
-        {
-            log.debug("Signature is not valid:  " + ve.getMessage());
-            
-            return false;
-        }
-*/
+   
         //no validation exception was thrown
        log.debug("Signature is valid.");
        return true;
@@ -708,14 +663,7 @@ log.debug("Creating SAMLCedential from subject name and assertion");
         this.protocolCache = protocolCache;
     }
     
-    //begin RKM
-    public boolean isEncrypted_Assertions() {
-  		return encrypted_Assertions;
-  	}
-
-  	public void setEncrypted_Assertions(boolean encrypted_Assertions) {
-  		this.encrypted_Assertions = encrypted_Assertions;
-  	}
+ 
 
 	public String getDecryptionKey() {
 		return decryptionKey;
@@ -724,24 +672,8 @@ log.debug("Creating SAMLCedential from subject name and assertion");
 	public void setDecryptionKey(String decryptionKey) {
 		this.decryptionKey = decryptionKey;
 	}
-/*
-	public String getSignatureVerificationKey() {
-		return signatureVerificationKey;
-	}
 
-	public void setSignatureVerificationKey(String signatureVerificationKey) {
-		this.signatureVerificationKey = signatureVerificationKey;
-	}
 
-	public KeyStoreCredentialResolver getKeyManager() {
-		return keyManager;
-	}
-
-	public void setKeyManager(KeyStoreCredentialResolver keyManager) {
-		this.keyManager = keyManager;
-	}
-	*/
-	//END RKM
 
 	public int getDEFAULT_RESPONSE_SKEW() {
 		return DEFAULT_RESPONSE_SKEW;

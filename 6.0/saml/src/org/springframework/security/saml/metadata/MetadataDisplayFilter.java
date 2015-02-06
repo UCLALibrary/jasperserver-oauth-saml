@@ -1,4 +1,4 @@
-/* Copyright 2009 Vladimir Schäfer
+/* Copyright 2009 Vladimir Schï¿½fer
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import java.io.PrintWriter;
  * this application deployment. In case the application is configured to automatically generate metadata,
  * the generation occurs upon first invocation of this filter (first request made to the server).
  *
- * @author Vladimir Schäfer
+ * @author Vladimir Schï¿½fer
  */
 public class MetadataDisplayFilter  extends GenericFilterBean{
 
@@ -156,7 +156,6 @@ public class MetadataDisplayFilter  extends GenericFilterBean{
         this.generator = generator;
     }
 
-	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
 		 initializeSystemMetadata((HttpServletRequest)request);

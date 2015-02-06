@@ -19,7 +19,6 @@ import org.springframework.security.core.GrantedAuthority;
 public class SAMLAuthorityImpl implements GrantedAuthority{
 
 	String authority;
-	@Override
 	public String getAuthority() {
 		
 		return authority;

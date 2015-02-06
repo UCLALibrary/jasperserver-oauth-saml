@@ -1,4 +1,4 @@
-/* Copyright 2009 Vladimir Schäfer
+/* Copyright 2009 Vladimir Schï¿½fer
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import java.io.IOException;
  * The other way is direct invocation of the entry point by accessing the DEFAULT_FILTER_URL. In this way user
  * can be forwarded to IDP after clicking for example login button.
  *
- * @author Vladimir Schäfer
+ * @author Vladimir Schï¿½fer
  */
 public class SAMLEntryPoint extends GenericFilterBean implements AuthenticationEntryPoint {
 
@@ -158,7 +158,6 @@ public class SAMLEntryPoint extends GenericFilterBean implements AuthenticationE
         this.idpSelectionPath = idpSelectionPath;
     }
 
-	@Override
 	public void commence(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
 			AuthenticationException arg2) throws IOException, ServletException {
 		 try {
@@ -179,7 +178,6 @@ public class SAMLEntryPoint extends GenericFilterBean implements AuthenticationE
 		
 	}
 
-	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
 		 if (processFilter((HttpServletRequest)request)) {
