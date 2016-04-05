@@ -38,6 +38,7 @@ public class OAuthAccessTokenValidator  implements OAuthAccessTokenValidatorInte
 	  private String userdetails_key;
 		private String userdetails_secret;
 		private String userdetails_location;
+		private boolean useBearerHeader;
 	private static Logger log = LogManager.getLogger(OAuthAccessTokenValidator.class);
 	//String query;
 	
@@ -91,8 +92,15 @@ private String checkAuthenticationToken(Object ssoToken) {
 		try {
 		
 			 Map<String, String> headers = Utils.getBasicAuthorizationHeader(userdetails_key, userdetails_secret);
-		    	OAuthClientRequest bearerClientRequest = new OAuthBearerClientRequest(userdetails_location)
-		     .setAccessToken(ticket).buildQueryMessage();
+			 
+		    	OAuthClientRequest bearerClientRequest;
+		    	if(useBearerHeader){
+		    		bearerClientRequest= new OAuthBearerClientRequest(userdetails_location)
+		     .setAccessToken(ticket).buildHeaderMessage();
+		    	}else{
+		    		bearerClientRequest= new OAuthBearerClientRequest(userdetails_location)
+				     .setAccessToken(ticket).buildQueryMessage();
+		    	}
 		    	bearerClientRequest.setHeaders(headers);
 		    	OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());			 
 		    	resourceResponse = oAuthClient.resource(bearerClientRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
@@ -140,6 +148,22 @@ public String getUserdetails_secret() {
 
 public void setUserdetails_secret(String userdetails_secret) {
 	this.userdetails_secret = userdetails_secret;
+}
+
+
+
+
+
+public boolean isUseBearerHeader() {
+	return useBearerHeader;
+}
+
+
+
+
+
+public void setUseBearerHeader(boolean useBearerHeader) {
+	this.useBearerHeader = useBearerHeader;
 }
 
 	

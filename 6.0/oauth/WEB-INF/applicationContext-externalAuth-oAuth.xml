@@ -78,6 +78,9 @@
 	   <property name="userdetails_secret">
 	   <value>0ebdb578-d571-43f0-91f7-ce0e656a35f0</value>
 	   </property>
+       <property name="useBearerHeader">
+           <value>false</value>
+        </property>
     </bean>
 	
 	
