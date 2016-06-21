@@ -50,7 +50,7 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
             String tenantid = null;
             String username = null;
             String displayname = null;
-            List<OAuthAuthorityImpl> myauthorities = null;
+            Collection<GrantedAuthority> myauthorities = null;
             boolean isActive = true;
 
             try {
@@ -72,7 +72,7 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
 
                 isActive = true;
                 state = "";
-                myauthorities = new ArrayList<OAuthAuthorityImpl>();
+                myauthorities = new ArrayList<GrantedAuthority>();
 
 
             } catch (JSONException e) {
@@ -100,7 +100,7 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
     }
 
 
-    private UserDetails createUserDetails(Collection<? extends GrantedAuthority> grantedAuthorities,
+    private UserDetails createUserDetails(Collection<GrantedAuthority> grantedAuthorities,
                                           String username, String fullname, String pw, String orgId,
                                           List<MTUserDetails.TenantInfo> mytenants, String email, boolean isActive) {
 
@@ -108,6 +108,7 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
 
         OAuthMTUserDetails wrappingUser = new OAuthMTUserDetails(grantedAuthorities, username, mytenants);
         wrappingUser.setUsername(username);
+    
         wrappingUser.setPassword(pw);
         wrappingUser.setAccountNonExpired(true);
         wrappingUser.setAccountNonLocked(true);

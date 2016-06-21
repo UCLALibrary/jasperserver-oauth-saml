@@ -34,7 +34,7 @@ public class OAuthMTUserDetails extends OAuthUserDetails implements MTUserDetail
     private List<TenantInfo> tenantList;
     private String accessToken;
     
-    public OAuthMTUserDetails(Collection<? extends GrantedAuthority> authorities, String username, List<TenantInfo> tenantList) {
+    public OAuthMTUserDetails(Collection<GrantedAuthority> authorities, String username, List<TenantInfo> tenantList) {
         super(authorities, username);
         this.tenantList = tenantList;
     }

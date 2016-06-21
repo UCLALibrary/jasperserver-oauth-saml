@@ -17,13 +17,14 @@ package com.jaspersoft.jasperserver.ps.OAuth;
 
 import org.springframework.security.core.GrantedAuthority;
 
-public class OAuthAuthorityImpl implements GrantedAuthority{
-
-	String authority;
-	@Override
-	public String getAuthority() {
-		
-		return authority;
-	}
-
+public class OAuthAuthorityImpl implements GrantedAuthority {
+    private final String authority;
+    
+    public OAuthAuthorityImpl(String authority) {
+        this.authority = authority;
+    }
+    
+    public String getAuthority() {
+        return authority;
+    }
 }

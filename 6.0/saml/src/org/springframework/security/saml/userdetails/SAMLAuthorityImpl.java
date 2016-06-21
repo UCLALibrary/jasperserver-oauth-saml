@@ -16,12 +16,15 @@ package org.springframework.security.saml.userdetails;
 */
 import org.springframework.security.core.GrantedAuthority;
 
-public class SAMLAuthorityImpl implements GrantedAuthority{
 
-	String authority;
-	public String getAuthority() {
-		
-		return authority;
-	}
-
+public class SAMLAuthorityImpl implements GrantedAuthority {
+    private final String authority;
+    
+    public SAMLAuthorityImpl(String authority) {
+        this.authority = authority;
+    }
+    
+    public String getAuthority() {
+        return authority;
+    }
 }

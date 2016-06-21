@@ -27,12 +27,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 
+
 import com.jaspersoft.jasperserver.api.metadata.user.domain.Role;
 import com.jaspersoft.jasperserver.api.metadata.user.domain.User;
+import com.jaspersoft.jasperserver.api.security.externalAuth.ExternalUserDetails;
 
-public class OAuthUserDetails implements UserDetails, User,Serializable {
+public class OAuthUserDetails extends ExternalUserDetails implements UserDetails, User,Serializable {
 
-	private Collection<? extends GrantedAuthority> authorities = null;
+	private Collection<GrantedAuthority> authorities = null;
 	private String password = "";
 	private String username = "";
 	private String company = "";
@@ -50,12 +52,12 @@ public class OAuthUserDetails implements UserDetails, User,Serializable {
 
 
 	
-public OAuthUserDetails(Collection<? extends GrantedAuthority> auth, String uname){
-	
+public OAuthUserDetails(Collection<GrantedAuthority> auth, String uname){
+	super(uname, auth);
 	authorities=auth;
 	username=uname;
 }
-	public Collection<? extends GrantedAuthority> getAuthorities() {
+	public Collection<GrantedAuthority> getAuthorities() {
 		return this.authorities;
 	}
 
@@ -91,7 +93,7 @@ public OAuthUserDetails(Collection<? extends GrantedAuthority> auth, String unam
 		return this.enabled;
 	}
 
-	public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+	public void setAuthorities(Collection<GrantedAuthority> authorities) {
 		this.authorities = authorities;
 	}
 
