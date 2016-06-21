@@ -21,15 +21,18 @@ import java.util.List;
 import java.util.Set;
 
 
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
 
+
 import com.jaspersoft.jasperserver.api.metadata.user.domain.Role;
 import com.jaspersoft.jasperserver.api.metadata.user.domain.User;
+import com.jaspersoft.jasperserver.api.security.externalAuth.ExternalUserDetails;
 
-public class SAMLUserDetails implements UserDetails, User {
+public class SAMLUserDetails extends ExternalUserDetails implements UserDetails, User {
 
 	private Collection<? extends GrantedAuthority> authorities = null;
 	private String password = "";
@@ -48,13 +51,13 @@ public class SAMLUserDetails implements UserDetails, User {
 	private String tenantId = null;
 
 	
-public SAMLUserDetails(Collection<? extends GrantedAuthority> authorities2, String uname){
-	
+public SAMLUserDetails(Collection<GrantedAuthority> authorities2, String uname){
+	super(uname,authorities2);
 	authorities=authorities2;
 	username=uname;
 }
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return this.authorities;
+	public Collection<GrantedAuthority> getAuthorities() {
+		return (Collection<GrantedAuthority>) this.authorities;
 	}
 
 	public String getPassword() {
