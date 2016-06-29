@@ -91,7 +91,7 @@ private String checkAuthenticationToken(Object ssoToken) {
 		OAuthResourceResponse resourceResponse =null;
 		try {
 		
-			 Map<String, String> headers = Utils.getBasicAuthorizationHeader(userdetails_key, userdetails_secret);
+			// Map<String, String> headers = Utils.getBasicAuthorizationHeader(userdetails_key, userdetails_secret);
 			 
 		    	OAuthClientRequest bearerClientRequest;
 		    	if(useBearerHeader){
@@ -101,7 +101,7 @@ private String checkAuthenticationToken(Object ssoToken) {
 		    		bearerClientRequest= new OAuthBearerClientRequest(userdetails_location)
 				     .setAccessToken(ticket).buildQueryMessage();
 		    	}
-		    	bearerClientRequest.setHeaders(headers);
+		    	//bearerClientRequest.setHeaders(headers);
 		    	OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());			 
 		    	resourceResponse = oAuthClient.resource(bearerClientRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
 		
