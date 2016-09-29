@@ -52,6 +52,7 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
             String displayname = null;
             Collection<GrantedAuthority> myauthorities = null;
             boolean isActive = true;
+              Map<String, String> attributes = null;
 
             try {
                 myclaims = new JSONObject(jsonResponse);
@@ -69,6 +70,9 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
                     tenantid = "organization_1";
                 }
 
+                
+                attributes = new HashMap<String, String>();
+                //attributes.put("ConnectDB_Schema",schema);
 
                 isActive = true;
                 state = "";
@@ -87,7 +91,7 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
                 OAuthTenantInfo myt = new OAuthTenantInfo(tenantid, tenantname, tenantname);
                 List<MTUserDetails.TenantInfo> mytenants = new Vector<MTUserDetails.TenantInfo>();
                 mytenants.add(myt);
-                return createUserDetails(myauthorities, username, displayname, "4N3v3R6u3s5", tenantid, mytenants, username, isActive);
+                return createUserDetails(myauthorities, username, displayname, "4N3v3R6u3s5", tenantid, mytenants, username, isActive,attributes);
             }
         } else {
             log.error("username not available in claims information");
@@ -120,6 +124,33 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
         // check during testing
         wrappingUser.setExternallyDefined(true);
         wrappingUser.setTenantId(orgId);
+        return wrappingUser;
+    }
+    
+    
+    private UserDetails createUserDetails(Collection<GrantedAuthority> grantedAuthorities,
+                                          String username, String fullname, String pw, String orgId,
+                                          List<MTUserDetails.TenantInfo> mytenants, String email, boolean isActive, Map<String, String> attributes) {
+        
+        
+        
+        OAuthMTUserDetails wrappingUser = new OAuthMTUserDetails(grantedAuthorities, username, mytenants);
+        wrappingUser.setUsername(username);
+        wrappingUser.setPassword(pw);
+        wrappingUser.setAccountNonExpired(true);
+        wrappingUser.setAccountNonLocked(true);
+        wrappingUser.setAuthorities(grantedAuthorities);
+        wrappingUser.setCredentialsNonExpired(true);
+        wrappingUser.setEnabled(isActive);
+        wrappingUser.setEmailAddress(email);
+        wrappingUser.setFullName(fullname);
+        
+        Map<String, Object> addtldetails =new HashMap<String,Object>();
+        addtldetails.put(ExternalUserDetails.PROFILE_ATTRIBUTES_ADDITIONAL_MAP_KEY,attributes);
+        
+        wrappingUser.setAdditionalDetailsMap(addtldetails);
+        // check during testing
+        wrappingUser.setExternallyDefined(true);
         return wrappingUser;
     }
 }
