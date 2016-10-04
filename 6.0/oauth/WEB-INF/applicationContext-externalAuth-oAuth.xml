@@ -104,6 +104,8 @@
             <list>
                 <ref local="externalTenantSetupProcessor"/>
                 <ref local="mtExternalUserSetupProcessor"/>
+                 <!-- OPTIONAL processor: comment out if no profile attributes are expected
+                  <ref local="externalProfileAttributeProcessor"/>  -->
 				<!-- uncomment for user home folder creation processing
                 <ref local="externalUserFolderProcessor"/>
 				-->
@@ -181,6 +183,9 @@
                 </bean>
             </list>
         </property>
+    </bean>
+    
+    <bean id="externalProfileAttributeProcessor" class="com.jaspersoft.jasperserver.api.security.externalAuth.processors.ExternalProfileAttributeProcessor" parent="abstractExternalProcessor">
     </bean>
 	<!--
 	<bean id="externalAuthProperties" class="com.jaspersoft.jasperserver.api.security.externalAuth.ExternalAuthProperties">
