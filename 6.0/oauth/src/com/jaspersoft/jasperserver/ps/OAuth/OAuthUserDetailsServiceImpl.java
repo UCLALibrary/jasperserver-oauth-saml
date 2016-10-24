@@ -124,6 +124,18 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
         // check during testing
         wrappingUser.setExternallyDefined(true);
         wrappingUser.setTenantId(orgId);
+        Map<String, Object> addtldetails =new HashMap<String,Object>();
+        if(mytenants.size() > 1) {
+            List<String> tenantIds = new Vector<String>();
+            
+            for (TenantInfo tenant : mytenants) {
+                tenantIds.add(tenant.getId());
+                
+            }
+            
+            addtldetails.put(ExternalUserDetails.PARENT_TENANT_HIERARCHY_MAP_KEY, tenantIds);
+        }
+             wrappingUser.setAdditionalDetailsMap(addtldetails);
         return wrappingUser;
     }
     
@@ -147,7 +159,16 @@ public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
         
         Map<String, Object> addtldetails =new HashMap<String,Object>();
         addtldetails.put(ExternalUserDetails.PROFILE_ATTRIBUTES_ADDITIONAL_MAP_KEY,attributes);
-        
+        if(mytenants.size() > 1) {
+            List<String> tenantIds = new Vector<String>();
+            
+            for (TenantInfo tenant : mytenants) {
+                tenantIds.add(tenant.getId());
+                
+            }
+            
+            addtldetails.put(ExternalUserDetails.PARENT_TENANT_HIERARCHY_MAP_KEY, tenantIds);
+        }
         wrappingUser.setAdditionalDetailsMap(addtldetails);
         // check during testing
         wrappingUser.setExternallyDefined(true);
