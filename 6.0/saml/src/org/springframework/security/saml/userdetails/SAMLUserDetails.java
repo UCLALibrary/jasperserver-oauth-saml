@@ -22,8 +22,10 @@ import java.util.Set;
 
 
 
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 
 
 
@@ -34,7 +36,7 @@ import com.jaspersoft.jasperserver.api.security.externalAuth.ExternalUserDetails
 
 public class SAMLUserDetails extends ExternalUserDetails implements UserDetails, User {
 
-	private Collection<? extends GrantedAuthority> authorities = null;
+	private Collection<GrantedAuthority> authorities = null;
 	private String password = "";
 	private String username = "";
 	private String company = "";
@@ -50,11 +52,12 @@ public class SAMLUserDetails extends ExternalUserDetails implements UserDetails,
 	private Date previousPasswordChangeTime = null;
 	private String tenantId = null;
 
-	
-public SAMLUserDetails(Collection<GrantedAuthority> authorities2, String uname){
-	super(uname,authorities2);
-	authorities=authorities2;
-	username=uname;
+
+	public SAMLUserDetails(Collection<GrantedAuthority> authorities2,
+		String username2) {
+		super(username2,authorities2);
+		authorities=authorities2;
+		username=username2;
 }
 	public Collection<GrantedAuthority> getAuthorities() {
 		return (Collection<GrantedAuthority>) this.authorities;
@@ -92,7 +95,7 @@ public SAMLUserDetails(Collection<GrantedAuthority> authorities2, String uname){
 		return this.enabled;
 	}
 
-	public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+	public void setAuthorities(Collection<GrantedAuthority> authorities) {
 		this.authorities = authorities;
 	}
 

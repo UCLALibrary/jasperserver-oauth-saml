@@ -31,8 +31,8 @@ public class SAMLMTUserDetails extends SAMLUserDetails implements MTUserDetails 
 
     private List<TenantInfo> tenantList;
     
-    public SAMLMTUserDetails(Collection<? extends GrantedAuthority> authorities, String username, List<TenantInfo> tenantList) {
-        super((Collection<? extends GrantedAuthority>) authorities, username);
+    public SAMLMTUserDetails(Collection<GrantedAuthority> authorities, String username, List<TenantInfo> tenantList) {
+        super(authorities, username);
         this.tenantList = tenantList;
     }
 

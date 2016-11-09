@@ -62,7 +62,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService{
 		//username=firstname.substring(0,1) + lastname;
 		//fullname=firstname + " " + lastname;
 		 fullname=username;
-		List<SAMLAuthorityImpl> myroles=new ArrayList<SAMLAuthorityImpl>();
+		Collection<GrantedAuthority> myroles= new ArrayList<GrantedAuthority>();
 		
 				//username=findAttributeValue(attributeStatements, "wm-BusinessUnitNumber");
 		//assing to default organization
@@ -102,7 +102,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService{
 		return null;
 	}
 
-	private SAMLMTUserDetails createUserDetails(Collection<? extends GrantedAuthority> grantedAuthorities, String username, String fullname, String pw,  String orgId,  List<MTUserDetails.TenantInfo> mytenants, String email, boolean isActive){
+	private SAMLMTUserDetails createUserDetails(Collection<GrantedAuthority> grantedAuthorities, String username, String fullname, String pw,  String orgId,  List<MTUserDetails.TenantInfo> mytenants, String email, boolean isActive){
 		log.debug("Creating user details");
 		SAMLMTUserDetails wrappingUser = new SAMLMTUserDetails(grantedAuthorities,username,mytenants);
 		log.debug("Setting username:  " + username);
