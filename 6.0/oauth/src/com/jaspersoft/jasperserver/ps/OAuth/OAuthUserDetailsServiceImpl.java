@@ -17,6 +17,7 @@ package com.jaspersoft.jasperserver.ps.OAuth;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +32,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
+
+
+
 import com.jaspersoft.jasperserver.api.common.domain.impl.ExecutionContextImpl;
 import com.jaspersoft.jasperserver.api.metadata.user.domain.Tenant;
 import com.jaspersoft.jasperserver.api.metadata.user.domain.client.TenantImpl;
+import com.jaspersoft.jasperserver.api.security.externalAuth.ExternalUserDetails;
 import com.jaspersoft.jasperserver.multipleTenancy.MTUserDetails;
+import com.jaspersoft.jasperserver.multipleTenancy.MTUserDetails.TenantInfo;
 
 public class OAuthUserDetailsServiceImpl implements OAuthUserDetailsService {
     private static Log log = LogFactory.getLog(OAuthUserDetailsServiceImpl.class);
