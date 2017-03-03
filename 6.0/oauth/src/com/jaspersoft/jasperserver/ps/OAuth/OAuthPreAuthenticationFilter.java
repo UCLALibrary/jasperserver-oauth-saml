@@ -69,8 +69,7 @@ public class OAuthPreAuthenticationFilter implements InitializingBean, Filter {
 	private AuthenticationManager authenticationManager;
 	
 	
-	private HttpServletResponse hResponse;
-	private HttpServletRequest hRequest;
+	
 	private HttpSession hSession;
 	private ExternalDataSynchronizer externalDataSynchronizer;
 	private String defaultTargetUrl="/loginsuccess.html";
@@ -124,11 +123,11 @@ public class OAuthPreAuthenticationFilter implements InitializingBean, Filter {
 				.getAuthentication();
 		//only do SSO if auth is null otherwise it will use the current sessions auth
 		
-		hRequest = (HttpServletRequest) request;
+		HttpServletRequest hRequest = (HttpServletRequest) request;
 		//boolean isLogin=hRequest.getRequestURI().toLowerCase().contains("login");
 		//hResponse = (HttpServletResponse) response;
 		hSession = hRequest.getSession();
-		hResponse=(HttpServletResponse) response;
+		HttpServletResponse hResponse=(HttpServletResponse) response;
 		String at=null;
 	if(!requiresAuthentication(hRequest, hResponse)){
 		
@@ -149,7 +148,7 @@ public class OAuthPreAuthenticationFilter implements InitializingBean, Filter {
 		//if we don't already have an accesstoken from refreshing or anywhere else initialize authorization code and do handshake
 		
 			// perform oauth handshake
-			 at=performOAuthHandshake(hRequest,oauthcode);
+			 at=performOAuthHandshake(hRequest,hResponse,oauthcode);
 			
 			//handshake returned auth code and not access token so return for redirect in handshake
 			if (at == null){
@@ -207,7 +206,7 @@ public class OAuthPreAuthenticationFilter implements InitializingBean, Filter {
 	
 	
 
-	private String performOAuthHandshake(HttpServletRequest hRequest,  
+	private String performOAuthHandshake(HttpServletRequest hRequest,  HttpServletResponse hResponse,
 			String oauthcode )  {
 	
 			log.debug("Performing oauth handshake");
