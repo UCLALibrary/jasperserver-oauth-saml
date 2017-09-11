@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="6.4/oauth/src"/>
+	<classpathentry kind="src" path="6.4/saml/src"/>
+	<classpathentry kind="lib" path="6.4/oauth/binaries/apacheoltu/org.apache.oltu.oauth2.client-0.31.jar"/>
+	<classpathentry kind="lib" path="6.4/oauth/binaries/apacheoltu/org.apache.oltu.oauth2.common-0.31.jar"/>
+	<classpathentry kind="lib" path="6.4/saml/binaries/lib/bcprov-jdk15on-1.52.jar"/>
+	<classpathentry kind="lib" path="6.4/saml/binaries/lib/jargs-1.0.jar"/>
+	<classpathentry kind="lib" path="6.4/saml/binaries/lib/not-yet-commons-ssl-0.3.9.jar"/>
+	<classpathentry kind="lib" path="6.4/saml/binaries/lib/opensaml-2.0.0-jdk-1.5.jar"/>
+	<classpathentry kind="lib" path="6.4/saml/binaries/lib/openws-1.0.0-jdk-1.5.jar"/>
+	<classpathentry kind="lib" path="6.4/saml/binaries/lib/xmlsec-1.4.1.jar"/>
+	<classpathentry kind="lib" path="6.4/saml/binaries/lib/xmltooling-1.0.0-jdk-1.5.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JasperReports-Server-6.4.0"/>
+	<classpathentry kind="lib" path="/Users/stevepark/Documents/Old_G_Drive/DATA_TRANSFER/apache-tomcat-8.0.28/lib/servlet-api.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
