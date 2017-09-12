@@ -236,7 +236,7 @@ class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
                 <value>ROLE_USER</value>
             </list>
         </property>
-
+        <property name="externalAuthProperties" ><ref local="externalAuthProperties"/></property>
     </bean>
 
     <bean id="externalUserFolderProcessor"
@@ -269,12 +269,11 @@ class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
         </property>
     </bean>
 	
-	<!--
 	<bean id="externalAuthProperties" class="com.jaspersoft.jasperserver.api.security.externalAuth.ExternalAuthProperties">
-       
-       
+        <property name="authenticationProcessingUrl" value="/j_spring_security_check"/>
+        <property name="ssoServerLocation" value="http://localhost"/>
+        <property name="externalLoginUrl" value="http://localhost:8061/jasperserver-pro/saml/login"/>
+        <property name="loginUrl" value="http://localhost:8061/jasperserver-pro/saml/login"/>
         <property name="logoutUrl" value="http://localhost/simplesaml/saml2/idp/SingleLogoutService.php?ReturnTo=http://localhost:8061/jasperserver-pro/saml/login"/>
-
     </bean>
-	-->
 </beans>
