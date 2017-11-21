@@ -96,6 +96,13 @@ public class WebSSOProfile {
             velocityEngine.setProperty(RuntimeConstants.OUTPUT_ENCODING, "UTF-8");
             velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
             velocityEngine.setProperty("classpath.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+            
+            ///MJB added the following 3 lines so velocity will log to JRS logger, not it's own
+            //This address issues when we can't create/write to velocity.log on startup due to permissions
+            velocityEngine.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+            velocityEngine.setProperty("runtime.log.logsystem.log4j.category", "velocity");
+            velocityEngine.setProperty("runtime.log.logsystem.log4j.logger", "velocity");
+            
             velocityEngine.init();
         } catch (Exception e) {
             log.debug("Error initializing velicoity engige", e);

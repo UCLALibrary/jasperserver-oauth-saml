@@ -15,7 +15,14 @@
  */
 package org.springframework.security.saml.metadata;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import org.opensaml.common.xml.SAMLConstants;
+import org.opensaml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.RoleDescriptor;
@@ -27,8 +34,6 @@ import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.security.SecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * Class offering extra services on top of underlaying chaining MetadataProviders. Manager keeps track of all available
@@ -104,6 +109,20 @@ public class MetadataManager extends ChainingMetadataProvider {
             log.debug("Found metadata entity with ID: " + entityID);
             result.add(entityID);
         }
+        //MJB added following check in case metadata contains EntitiesDescriptor (generally 
+        //indicating multiple EntityDescriptor's). Loop through all of them and get the entity IDs
+        if (object instanceof EntitiesDescriptor) {
+        	EntitiesDescriptor descriptors = (EntitiesDescriptor) object;
+        	List<EntityDescriptor> allEntityDescriptors = descriptors.getEntityDescriptors();
+        	String entityID = null;
+        	for (EntityDescriptor thisEntityDescriptor : allEntityDescriptors)
+        	{
+        		entityID = thisEntityDescriptor.getEntityID();
+                log.debug("Found metadata entity with ID: " + entityID);
+                result.add(entityID);
+        	}
+        }
+
         return result;
     }
 
@@ -195,6 +214,7 @@ public class MetadataManager extends ChainingMetadataProvider {
                 return;
             }
         }
+        
         throw new SecurityException("Attempt to set nonexisting IDP as default: "+defaultIDP);
     }
 

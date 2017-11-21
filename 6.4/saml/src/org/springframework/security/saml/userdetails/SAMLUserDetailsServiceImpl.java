@@ -58,10 +58,11 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService{
 				String username="testsamluser";
 		String fullname="testsamluser";
 		 username=mya.getSubject().getNameID().getValue();
-		 //String lastname=mya.getAttributeStatements().get(0).getAttributes().get(2).getAttributeValues().get(0).getDOM().getChildNodes().item(0).getNodeValue();
+		 //TODO: Get this line working perhaps? String lastname=mya.getAttributeStatements().get(0).getAttributes().get(2).getAttributeValues().get(0).getDOM().getChildNodes().item(0).getNodeValue();
 		//username=firstname.substring(0,1) + lastname;
 		//fullname=firstname + " " + lastname;
 		 fullname=username;
+		 //log.debug("lastname is: " + lastname);
 		Collection<GrantedAuthority> myroles= new ArrayList<GrantedAuthority>();
 		
 				//username=findAttributeValue(attributeStatements, "wm-BusinessUnitNumber");
