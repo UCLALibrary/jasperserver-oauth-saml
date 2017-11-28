@@ -21,48 +21,53 @@ import org.opensaml.saml2.core.Assertion;
  * Object is a storage for entities parsedd from SAML2 response during it's authentication. The object is stored
  * as credential object inside the Authentication returned after authentication success.
  *
- * @author Vladimir Schäfer 
+ * @author Vladimir Schäfer
  */
-public class SAMLCredential {
+public class SAMLCredential
+{
 
-    private NameID nameID;
-    private Assertion authenticationAssertion;
-    private String IDPEntityID;
+  private NameID nameID;
+  private Assertion authenticationAssertion;
+  private String IDPEntityID;
 
-    /**
-     * Created unmodifiable SAML credential object.
-     * @param nameID name ID of the authenticated entity
-     * @param authenticationAssertion assertion used to validate the entity
-     * @param IDPEntityID identifier of IDP where the assertion came from
-     */
-    public SAMLCredential(NameID nameID, Assertion authenticationAssertion, String IDPEntityID) {
-        this.nameID = nameID;
-        this.authenticationAssertion = authenticationAssertion;
-        this.IDPEntityID = IDPEntityID;
-        
-    }
+  /**
+   * Created unmodifiable SAML credential object.
+   * @param nameID name ID of the authenticated entity
+   * @param authenticationAssertion assertion used to validate the entity
+   * @param IDPEntityID identifier of IDP where the assertion came from
+   */
+  public SAMLCredential( NameID nameID, Assertion authenticationAssertion, String IDPEntityID )
+  {
+    this.nameID = nameID;
+    this.authenticationAssertion = authenticationAssertion;
+    this.IDPEntityID = IDPEntityID;
 
-    /**
-     * NameID returned from IDP as part of the authentication process.
-     * @return name id
-     */
-    public NameID getNameID() {
-        return nameID;
-    }
+  }
 
-    /**
-     * Assertion issued by IDP as part of the authentication process.
-     * @return assertion
-     */
-    public Assertion getAuthenticationAssertion() {
-        return authenticationAssertion;
-    }
+  /**
+   * NameID returned from IDP as part of the authentication process.
+   * @return name id
+   */
+  public NameID getNameID()
+  {
+    return nameID;
+  }
 
-    /**
-     * Entity ID of the IDP which issued the assertion.
-     * @return IDP entity ID
-     */
-    public String getIDPEntityID() {
-        return IDPEntityID;
-    }
+  /**
+   * Assertion issued by IDP as part of the authentication process.
+   * @return assertion
+   */
+  public Assertion getAuthenticationAssertion()
+  {
+    return authenticationAssertion;
+  }
+
+  /**
+   * Entity ID of the IDP which issued the assertion.
+   * @return IDP entity ID
+   */
+  public String getIDPEntityID()
+  {
+    return IDPEntityID;
+  }
 }

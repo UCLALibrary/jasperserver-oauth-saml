@@ -25,38 +25,42 @@ import java.util.Hashtable;
  *
  * @author Vladimir Schäfer
  */
-public class ProtocolCache {
+public class ProtocolCache
+{
 
-    /**
-     * Message storage.
-     */
-    private static Hashtable<String, RequestAbstractType> messages;
+  /**
+   * Message storage.
+   */
+  private static Hashtable<String, RequestAbstractType> messages;
 
-    /**
-     * Default constructor.
-     */
-    public ProtocolCache() {
-        messages = new Hashtable<String, RequestAbstractType>();
-    }
+  /**
+   * Default constructor.
+   */
+  public ProtocolCache()
+  {
+    messages = new Hashtable<String, RequestAbstractType>();
+  }
 
-    /**
-     * Stores a request message into the repository. RequestAbstractType must have an ID
-     * set. Any previous message with the same ID will be overwritten.
-     * @param request request message
-     */
-    public void storeMessage(RequestAbstractType request) {
-        String id = request.getID();
-        messages.put(id, request);
-    }
+  /**
+   * Stores a request message into the repository. RequestAbstractType must have an ID
+   * set. Any previous message with the same ID will be overwritten.
+   * @param request request message
+   */
+  public void storeMessage( RequestAbstractType request )
+  {
+    String id = request.getID();
+    messages.put( id, request );
+  }
 
-    /**
-     * Returns previously stored message with the given ID or null, if there is no message
-     * stored.
-     * @param ID ID of mesage to retreive
-     * @return message found or null
-     */
-    public RequestAbstractType retreiveMessage(String ID) {
-        return messages.get(ID);
-    }
+  /**
+   * Returns previously stored message with the given ID or null, if there is no message
+   * stored.
+   * @param ID ID of mesage to retreive
+   * @return message found or null
+   */
+  public RequestAbstractType retreiveMessage( String ID )
+  {
+    return messages.get( ID );
+  }
 
 }

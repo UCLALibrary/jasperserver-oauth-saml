@@ -12,7 +12,7 @@ package org.springframework.security.saml.userdetails;
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-* 
+*
 */
 
 import java.util.Collection;
@@ -20,184 +20,216 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-
-
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-
-
-
 
 import com.jaspersoft.jasperserver.api.metadata.user.domain.Role;
 import com.jaspersoft.jasperserver.api.metadata.user.domain.User;
 import com.jaspersoft.jasperserver.api.security.externalAuth.ExternalUserDetails;
 
-public class SAMLUserDetails extends ExternalUserDetails implements UserDetails, User {
+//import org.springframework.security.core.userdetails.User;
 
-	private Collection<GrantedAuthority> authorities = null;
-	private String password = "";
-	private String username = "";
-	private String company = "";
-	private boolean accountNonExpired = false;
-	private boolean accountNonLocked = false;
-	private boolean credentialsNonExpired = false;
-	private boolean enabled = false;
-	private List attributes = null;
-	private Set roleSet;
-	private String fullName = null;
-	private String emailAddress = null;
-	private boolean externallyDefined = false;
-	private Date previousPasswordChangeTime = null;
-	private String tenantId = null;
+public class SAMLUserDetails
+  extends ExternalUserDetails
+  implements UserDetails, User
+{
+
+  private Collection<GrantedAuthority> authorities = null;
+  private String password = "";
+  private String username = "";
+  private String company = "";
+  private boolean accountNonExpired = false;
+  private boolean accountNonLocked = false;
+  private boolean credentialsNonExpired = false;
+  private boolean enabled = false;
+  private List attributes = null;
+  private Set roleSet;
+  private String fullName = null;
+  private String emailAddress = null;
+  private boolean externallyDefined = false;
+  private Date previousPasswordChangeTime = null;
+  private String tenantId = null;
 
 
-	public SAMLUserDetails(Collection<GrantedAuthority> authorities2,
-		String username2) {
-		super(username2,authorities2);
-		authorities=authorities2;
-		username=username2;
-}
-	public Collection<GrantedAuthority> getAuthorities() {
-		return (Collection<GrantedAuthority>) this.authorities;
-	}
+  public SAMLUserDetails( Collection<GrantedAuthority> authorities2, String username2 )
+  {
+    super( username2, authorities2 );
+    authorities = authorities2;
+    username = username2;
+  }
 
-	public String getPassword() {
-		return this.password;
-	}
+  public Collection<GrantedAuthority> getAuthorities()
+  {
+    return ( Collection<GrantedAuthority> ) this.authorities;
+  }
 
-	public String getUsername() {
-		return this.username;
-	}
+  public String getPassword()
+  {
+    return this.password;
+  }
 
-	public String getCompany() {
-		return company;
-	}
+  public String getUsername()
+  {
+    return this.username;
+  }
 
-	public void setCompany(String company) {
-		this.company = company;
-	}
+  public String getCompany()
+  {
+    return company;
+  }
 
-	public boolean isAccountNonExpired() {
-		return this.accountNonExpired;
-	}
+  public void setCompany( String company )
+  {
+    this.company = company;
+  }
 
-	public boolean isAccountNonLocked() {
-		return this.accountNonLocked;
-	}
+  public boolean isAccountNonExpired()
+  {
+    return this.accountNonExpired;
+  }
 
-	public boolean isCredentialsNonExpired() {
-		return this.credentialsNonExpired;
-	}
+  public boolean isAccountNonLocked()
+  {
+    return this.accountNonLocked;
+  }
 
-	public boolean isEnabled() {
-		return this.enabled;
-	}
+  public boolean isCredentialsNonExpired()
+  {
+    return this.credentialsNonExpired;
+  }
 
-	public void setAuthorities(Collection<GrantedAuthority> authorities) {
-		this.authorities = authorities;
-	}
+  public boolean isEnabled()
+  {
+    return this.enabled;
+  }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+  public void setAuthorities( Collection<GrantedAuthority> authorities )
+  {
+    this.authorities = authorities;
+  }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+  public void setPassword( String password )
+  {
+    this.password = password;
+  }
 
-	public void setAccountNonExpired(boolean accountNonExpired) {
-		this.accountNonExpired = accountNonExpired;
-	}
+  public void setUsername( String username )
+  {
+    this.username = username;
+  }
 
-	public void setAccountNonLocked(boolean accountNonLocked) {
-		this.accountNonLocked = accountNonLocked;
-	}
+  public void setAccountNonExpired( boolean accountNonExpired )
+  {
+    this.accountNonExpired = accountNonExpired;
+  }
 
-	public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-		this.credentialsNonExpired = credentialsNonExpired;
-	}
+  public void setAccountNonLocked( boolean accountNonLocked )
+  {
+    this.accountNonLocked = accountNonLocked;
+  }
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+  public void setCredentialsNonExpired( boolean credentialsNonExpired )
+  {
+    this.credentialsNonExpired = credentialsNonExpired;
+  }
 
-	public List getAttributes() {
-		return attributes;
-	}
+  public void setEnabled( boolean enabled )
+  {
+    this.enabled = enabled;
+  }
 
-	public void setAttributes(List attrs) {
-		attributes = attrs;
-	}
+  public List getAttributes()
+  {
+    return attributes;
+  }
 
-	public Set getRoles() {
-		return roleSet;
-	}
+  public void setAttributes( List attrs )
+  {
+    attributes = attrs;
+  }
 
-	public void setRoles(Set newRoleSet) {
-		roleSet = newRoleSet;
-	}
+  public Set getRoles()
+  {
+    return roleSet;
+  }
 
-	public void addRole(Role aRole) {
-		this.roleSet.add(aRole);
-	}
+  public void setRoles( Set newRoleSet )
+  {
+    roleSet = newRoleSet;
+  }
 
-	public void removeRole(Role aRole) {
-		this.roleSet.remove(aRole);
-	}
+  public void addRole( Role aRole )
+  {
+    this.roleSet.add( aRole );
+  }
 
-	public String getFullName() {
-		return this.fullName;
-	}
+  public void removeRole( Role aRole )
+  {
+    this.roleSet.remove( aRole );
+  }
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
+  public String getFullName()
+  {
+    return this.fullName;
+  }
 
-	public String getEmailAddress() {
-		return this.emailAddress;
-	}
+  public void setFullName( String fullName )
+  {
+    this.fullName = fullName;
+  }
 
-	public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
-	}
+  public String getEmailAddress()
+  {
+    return this.emailAddress;
+  }
 
-	public boolean isExternallyDefined() {
-		return externallyDefined;
-	}
+  public void setEmailAddress( String emailAddress )
+  {
+    this.emailAddress = emailAddress;
+  }
 
-	public void setExternallyDefined(boolean externallyDefined) {
-		this.externallyDefined = externallyDefined;
-	}
+  public boolean isExternallyDefined()
+  {
+    return externallyDefined;
+  }
 
-	public Set getRoleSet() {
-		return roleSet;
-	}
+  public void setExternallyDefined( boolean externallyDefined )
+  {
+    this.externallyDefined = externallyDefined;
+  }
 
-	public void setRoleSet(Set roleSet) {
-		this.roleSet = roleSet;
-	}
+  public Set getRoleSet()
+  {
+    return roleSet;
+  }
 
-	public Date getPreviousPasswordChangeTime() {
-		return previousPasswordChangeTime;
-	}
+  public void setRoleSet( Set roleSet )
+  {
+    this.roleSet = roleSet;
+  }
 
-	public void setPreviousPasswordChangeTime(Date previousPasswordChangeTime) {
-		this.previousPasswordChangeTime = previousPasswordChangeTime;
+  public Date getPreviousPasswordChangeTime()
+  {
+    return previousPasswordChangeTime;
+  }
 
-	}
+  public void setPreviousPasswordChangeTime( Date previousPasswordChangeTime )
+  {
+    this.previousPasswordChangeTime = previousPasswordChangeTime;
 
-	public String getTenantId() {
+  }
 
-		return this.tenantId;
-	}
+  public String getTenantId()
+  {
 
-	public void setTenantId(String tenantId) {
-		this.tenantId = tenantId;
+    return this.tenantId;
+  }
 
-	}
-	
-	
+  public void setTenantId( String tenantId )
+  {
+    this.tenantId = tenantId;
+
+  }
+
 
 }

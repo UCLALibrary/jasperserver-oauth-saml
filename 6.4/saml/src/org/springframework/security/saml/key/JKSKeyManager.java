@@ -18,13 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 /**
  * Serves as a wrapper for java security KeyStore of JKS type which can be conveniently initialized as Spring bean.
- * 
+ *
  * <p>
  * The instance can be inserted into springConfiguration in a following manner:
  * <pre>
@@ -43,88 +44,112 @@ import java.security.cert.X509Certificate;
  *
  * @author Vladimir Schäfer
  */
-public class JKSKeyManager {
+public class JKSKeyManager
+{
 
-    private final Logger log = LoggerFactory.getLogger(JKSKeyManager.class);
+  private final Logger log = LoggerFactory.getLogger( JKSKeyManager.class );
 
-    /**
-     * Keystore to retreive keys from
-     */
-    private KeyStore ks;
+  /**
+   * Keystore to retreive keys from
+   */
+  private KeyStore ks;
 
-    /**
-     * Default constructor.
-     * @param storeFile file pointing to the JKS keystore
-     * @param storePass password to access the keystore
-     */
-    public JKSKeyManager(File storeFile, String storePass) {
-        initialize(storeFile, storePass, "JKS");
+  /**
+   * Default constructor.
+   * @param storeFile file pointing to the JKS keystore
+   * @param storePass password to access the keystore
+   */
+  public JKSKeyManager( File storeFile, String storePass )
+  {
+    initialize( storeFile, storePass, "JKS" );
+  }
+
+  /**
+   * Initializes the keystore using given properties.
+   * @param storeFile file pointing to the JKS keystore
+   * @param storePass password to open the keystore
+   * @param storeType type of keystore
+   */
+  private void initialize( File storeFile, String storePass, String storeType )
+  {
+    try
+    {
+      InputStream inputStream = new FileInputStream( storeFile );
+      ks = KeyStore.getInstance( storeType );
+      ks.load( inputStream, storePass.toCharArray() );
     }
-
-    /**
-     * Initializes the keystore using given properties.
-     * @param storeFile file pointing to the JKS keystore
-     * @param storePass password to open the keystore
-     * @param storeType type of keystore
-     */
-    private void initialize(File storeFile, String storePass, String storeType) {
-        try {
-            InputStream inputStream = new FileInputStream(storeFile);
-            ks = KeyStore.getInstance(storeType);
-            ks.load(inputStream, storePass.toCharArray());
-        } catch (FileNotFoundException e) {
-            log.error("Key file not found", e);
-            throw new RuntimeException("Key file not found", e);
-        } catch (IOException e) {
-            log.error("Error initializing keystore", e);
-            throw new RuntimeException("Error initializing keystore", e);
-        } catch (NoSuchAlgorithmException e) {
-            log.error("Error initializing keystore", e);
-            throw new RuntimeException("Error initializing keystore", e);
-        } catch (CertificateException e) {
-            log.error("Error initializing keystore", e);
-            throw new RuntimeException("Error initializing keystore", e);
-        } catch (KeyStoreException e) {
-            log.error("Error initializing keystore", e);
-            throw new RuntimeException("Error initializing keystore", e);
-        }
+    catch ( FileNotFoundException e )
+    {
+      log.error( "Key file not found", e );
+      throw new RuntimeException( "Key file not found", e );
     }
-
-    /**
-     * Returns certificate with the given alias from the keystore.
-     * @param alias alias of certificate to find
-     * @return certificate with the given alias or null if not found
-     */
-    public X509Certificate getCertificate(String alias) {
-        if (alias == null || alias.length() == 0) {
-            return null;
-        }
-        try {
-            return (X509Certificate) ks.getCertificate(alias);
-        } catch (Exception e) {
-            log.error("Error loading certificate", e);
-        }
-        return null;
+    catch ( IOException e )
+    {
+      log.error( "Error initializing keystore", e );
+      throw new RuntimeException( "Error initializing keystore", e );
     }
-
-    /**
-     * Returns public key with the given alias
-     * @param alias alias of the key to find
-     * @return public key of the alias or null if not found
-     */
-    public PublicKey getPublicKey(String alias) {
-        X509Certificate x509Certificate = getCertificate(alias);
-        if (x509Certificate != null) {
-            return x509Certificate.getPublicKey();
-        } else {
-            return null;
-        }
+    catch ( NoSuchAlgorithmException e )
+    {
+      log.error( "Error initializing keystore", e );
+      throw new RuntimeException( "Error initializing keystore", e );
     }
-
-    /**
-     * @return returns the initialized key store
-     */
-    public KeyStore getKeyStore() {
-        return ks;
+    catch ( CertificateException e )
+    {
+      log.error( "Error initializing keystore", e );
+      throw new RuntimeException( "Error initializing keystore", e );
     }
+    catch ( KeyStoreException e )
+    {
+      log.error( "Error initializing keystore", e );
+      throw new RuntimeException( "Error initializing keystore", e );
+    }
+  }
+
+  /**
+   * Returns certificate with the given alias from the keystore.
+   * @param alias alias of certificate to find
+   * @return certificate with the given alias or null if not found
+   */
+  public X509Certificate getCertificate( String alias )
+  {
+    if ( alias == null || alias.length() == 0 )
+    {
+      return null;
+    }
+    try
+    {
+      return ( X509Certificate ) ks.getCertificate( alias );
+    }
+    catch ( Exception e )
+    {
+      log.error( "Error loading certificate", e );
+    }
+    return null;
+  }
+
+  /**
+   * Returns public key with the given alias
+   * @param alias alias of the key to find
+   * @return public key of the alias or null if not found
+   */
+  public PublicKey getPublicKey( String alias )
+  {
+    X509Certificate x509Certificate = getCertificate( alias );
+    if ( x509Certificate != null )
+    {
+      return x509Certificate.getPublicKey();
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  /**
+   * @return returns the initialized key store
+   */
+  public KeyStore getKeyStore()
+  {
+    return ks;
+  }
 }
