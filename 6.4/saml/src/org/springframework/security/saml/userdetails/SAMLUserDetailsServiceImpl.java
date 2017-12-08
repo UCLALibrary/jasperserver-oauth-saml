@@ -46,7 +46,9 @@ import org.springframework.security.saml.SAMLCredential;
 import com.jaspersoft.jasperserver.multipleTenancy.DefaultTenantInfoImpl;
 import com.jaspersoft.jasperserver.multipleTenancy.MTUserDetails;
 
-import org.opensaml.saml2.core.AuthnStatement;
+//import org.opensaml.saml2.core.AuthnStatement;
+
+import org.springframework.security.access.AccessDeniedException;
 
 public class SAMLUserDetailsServiceImpl
   implements SAMLUserDetailsService
@@ -55,20 +57,34 @@ public class SAMLUserDetailsServiceImpl
 
 
   public UserDetails loadUserBySAML( SAMLCredential credential )
-    throws UsernameNotFoundException
+    throws UsernameNotFoundException, AccessDeniedException
   {
+    String username;
+    String fullname;
+    String jasperGroup;
     // TODO Auto-generated method stub
     //return null;
     log.error( "in loadUserBySAML" );
     Assertion mya = credential.getAuthenticationAssertion();
 
     //List<AttributeStatement> attributeStatements = mya.getAttributeStatements();
-    logAttributes(mya.getAttributeStatements() );
+    logAttributes( mya.getAttributeStatements() );
     //TODO parse userdetail information from assertion here and populate variables below
-    String username = "testsamluser";
-    String fullname = "testsamluser";
+    username = "testsamluser";
+    fullname = "testsamluser";
     //log.error( "name Id default element = " + mya.getSubject().getNameID().DEFAULT_ELEMENT_LOCAL_NAME );
-    username = findAttributeValue(mya.getAttributeStatements(), "urn:oid:2.16.840.1.113730.3.1.241"); // mya.getSubject().getNameID().getValue();
+
+    /*
+     * add code to check for jasper-report-eligible attribute value
+     * if missing, throw user out
+     */
+    jasperGroup = findAttributeValue( mya.getAttributeStatements(), "urn:oid:1.3.6.1.4.1.5923.1.1.1.7" ); //urn:oid:1.3.6.1.4.1.5923.1.1.1.7
+    if ( jasperGroup == null || jasperGroup.trim().length() == 0 || !jasperGroup.contains( "jasper-report-eligible" ) )
+      throw new AccessDeniedException( "User lacks access to application" );
+
+    username =
+      findAttributeValue( mya.getAttributeStatements(),
+                          "urn:oid:2.16.840.1.113730.3.1.241" ); // mya.getSubject().getNameID().getValue();
     //TODO: Get this line working perhaps? String lastname=mya.getAttributeStatements().get(0).getAttributes().get(2).getAttributeValues().get(0).getDOM().getChildNodes().item(0).getNodeValue();
     //username=firstname.substring(0,1) + lastname;
     //fullname=firstname + " " + lastname;
@@ -115,8 +131,8 @@ public class SAMLUserDetailsServiceImpl
     log.debug( "Attribue Name " + attName + " not found in SAML Attributes." );
     return null;
   }
-  
-  private void logAttributes(List<AttributeStatement> attributeStatements )
+
+  private void logAttributes( List<AttributeStatement> attributeStatements )
   {
     for ( int i = 0; i < attributeStatements.size(); i++ )
     {
@@ -134,7 +150,7 @@ public class SAMLUserDetailsServiceImpl
       }
     }
   }
-  
+
   private SAMLMTUserDetails createUserDetails( Collection<GrantedAuthority> grantedAuthorities, String username,
                                                String fullname, String pw, String orgId,
                                                List<MTUserDetails.TenantInfo> mytenants, String email,
