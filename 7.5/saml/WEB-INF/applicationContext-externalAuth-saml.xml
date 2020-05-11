@@ -1,0 +1,279 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+
+	<!-- OPTIONAL bean: The filter is waiting for connections on URL suffixed with filterSuffix and presents SP metatdata there -->
+    <bean id="proxyPreAuthenticatedProcessingFilter" class="org.springframework.security.saml.metadata.MetadataDisplayFilter">
+        <property name="manager" ref="metadata" />
+        <property name="generator" ref="metadataGenerator" />
+        <property name="filterSuffix" value="/saml/metadata" />
+    </bean>		  
+			  
+	<bean id="proxyBasicProcessingFilter" class="org.springframework.security.saml.SAMLEntryPoint" depends-on="metadata, webSSOprofile">
+        <constructor-arg index="0" ref="webSSOprofile"/>
+        <property name="filterSuffix" value="/saml/login" />
+        <property name="metadata" ref="metadata" />
+    </bean>  
+	
+	 <!-- Override default authentication processing filter with the one processing SAML messages -->
+    <bean id="proxyRequestParameterAuthenticationFilter" class="org.springframework.security.saml.SAMLProcessingFilter" depends-on="bootstrap">
+        <property name="authenticationManager" ref="samlAuthenticationManager"/>
+         <property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
+		<property name="authenticationFailureHandler" ref="failureHandler"/>
+        <property name="webSSOprofile" ref="webSSOprofile" />
+    </bean>
+	
+	
+	<bean id="proxyAuthenticationProcessingFilter"
+          class="com.jaspersoft.jasperserver.api.security.EncryptionAuthenticationProcessingFilter">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="postOnly" value="false"/>
+        <property name="authenticationFailureHandler" ref="failureHandler" />
+        <property name="authenticationSuccessHandler" ref="successHandler" />
+        <property name="filterProcessesUrl" value="/j_spring_security_check"/>
+        <property name="allowSessionCreation" value="true" />
+        <property name="sessionAuthenticationStrategy" ref="sas"/>
+    </bean>
+	
+	
+	<bean id="samlAuthenticationManager" class="com.jaspersoft.jasperserver.api.security.externalAuth.wrappers.spring.JSProviderManager">
+        <property name="providers">
+            <list>
+                <ref local="samlAuthenticationProvider"/>
+                <ref bean="${bean.daoAuthenticationProvider}"/>
+                <!-- anonymousAuthenticationProvider only needed if filterInvocationInterceptor.alwaysReauthenticate is set to true
+                    <ref bean="anonymousAuthenticationProvider"/>-->
+            </list>
+        </property>
+    </bean>
+    <!-- Key manager, set the JKS path and password to open the datastore  
+    argument 0 is the relative location of the java key store to use for private keys and certificates
+    argument 1 is the password for the keystore-->
+    <bean id="keyStore" class="org.springframework.security.saml.key.JKSKeyManager">
+        <constructor-arg index="0" value="C:\\js_spring3\\jasper_keystore.jks" />
+        <constructor-arg index="1" value="jasper" />
+    </bean>
+
+    <!-- Set keys which should be available to the system in the map, one of these keys must be also 
+         specified in the webSSOProfile later...these should be the private keys for the RP (Reqesting party) that will be used for decryption of assertions and signing request purposes-->
+    <bean id="keyResolver" class="org.opensaml.xml.security.credential.KeyStoreCredentialResolver">
+        <constructor-arg index="0">
+            <bean factory-bean="keyStore" factory-method="getKeyStore" />
+        </constructor-arg>
+        <constructor-arg index="1">
+            <map>
+                <entry key="mykey" value="jasper" />
+            </map>
+        </constructor-arg>
+    </bean>
+
+
+
+
+    
+
+    <!-- Class is capable of generating SP metadata describing the currently running envirnment  
+serverNameWithPortNumber should resolve to the relevant saml host and will be used to create the metadata entityids and assertion location urls
+secure sets whether or not to build the metadata urls with https or http
+serverKey should be the alias of the private key for this RP (Requesting Party)    -->
+    <bean id="metadataGenerator" class="org.springframework.security.saml.metadata.MetadataGenerator">
+        <property name="credentialResolver" ref="keyResolver"/>
+		<!-- private key for decryption used to generate public key for encryption in metadata-->
+	<property name="serverKey" value="mykey"/>
+	<property name="serverNameWithPortNumber" value="localhost:8061"/>
+		<!--force https urls on metadata generation-->
+	<property name="secure" value="false"/>
+	<property name="requestSigned" value="false"/>
+	<property name="assertionSigned" value="true"/>
+	<!--if you set/uncomment this property this will directly set the entityID property in the generated metadata. Default behavior without setting this property is to generate the Consumer Service
+url using the serverNameWithPortNumber above  ie:  http://localhost:8086/saml/SSO-->
+	<property name="SPEntityID" value="jasper6_1"/>
+	
+    </bean>
+
+    <!-- IDP Metadata configuration - paths to metadata of IDPs in circle of trust is here -->
+    <!-- Do no forget to call iniitalize method on providers -->
+
+    <bean id="metadata" class="org.springframework.security.saml.metadata.MetadataManager" depends-on="bootstrap">
+        <constructor-arg index="0">
+            <list>
+				<!--
+                <bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider" init-method="initialize">
+                    <constructor-arg index="0">
+                        <value type="java.io.File">classpath:security/idp.xml</value>
+                    </constructor-arg>
+                    <property name="parserPool" ref="parserPool"/>
+                </bean>
+				-->
+		
+                <bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider" init-method="initialize">
+                   <!--  URL containing the metadata -->
+                 <constructor-arg index="0">
+                        <value type="java.lang.String">http://localhost/simplesaml/saml2/idp/metadata.php</value>
+                    </constructor-arg>
+                  <!--     Timeout for metadata loading in ms -->
+                    <constructor-arg index="1">
+                        <value type="int">5000</value>
+                    </constructor-arg>
+                    <property name="parserPool" ref="parserPool"/>
+                </bean>
+
+            </list>
+        </constructor-arg>
+        <!-- Tells the system which IDP should be used for authenticating user by default. Should be the value for the entityID property from the idp's metadata -->
+        <property name="defaultIDP" value="http://localhost/simplesaml/saml2/idp/metadata.php" />
+    </bean>
+
+    <!-- Entry point to initialize authentication -->    
+    <bean id="webSSOprofile" class="org.springframework.security.saml.websso.WebSSOProfile" depends-on="bootstrap">
+        <constructor-arg index="0" ref="metadata" />
+        <constructor-arg index="1" ref="keyResolver" />
+        <!-- The name of key to use for signing purposes must be set here...private key of this RP (Requesting Party) -->
+        <constructor-arg index="2" value="mykey" />
+        <property name="protocolCache" ref="protocolCache" />
+        <property name="parser" ref="parserPool" />
+    </bean>
+
+    <!-- SAML Authentication Provider responsible for validating of received SAML messages -->
+    <bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
+        <constructor-arg index="0" ref="webSSOprofileConsumber" />
+      
+        <property name="userDetails" ref="SAMLUserDetailsService" />
+    </bean>
+    <bean id="SAMLUserDetailsService" class="org.springframework.security.saml.userdetails.SAMLUserDetailsServiceImpl"/>
+
+    <!-- Initialization of OpenSAML library-->
+    <bean id="bootstrap" class="org.opensaml.DefaultBootstrap" init-method="bootstrap" lazy-init="false" />
+  
+   
+<!--
+	 <bean id="failureRedirectHandler"
+class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+<property name="useForward" value="true"/>
+<property name="defaultFailureUrl" value="/login.html?error=1"/>
+</bean>
+-->
+
+   <bean id="successRedirectHandler"
+          class="com.jaspersoft.jasperserver.api.security.externalAuth.JrsExternalAuthenticationSuccessHandler" parent="successHandler">
+        <property name="externalDataSynchronizer">
+            <ref local="externalDataSynchronizer"/>
+        </property>
+    </bean>
+    
+     
+    <!-- Consumer of assertions obtained from IDPs -->
+    <bean id="webSSOprofileConsumber" class="org.springframework.security.saml.websso.WebSSOProfileConsumer" depends-on="bootstrap">
+        <constructor-arg index="0" ref="metadata" />
+	 <constructor-arg index="1" ref="keyResolver" />
+	 <!-- The name of key to use for decryption purposes must be set here.usually the private key alias of this RP (Requesting Party). -->
+	<constructor-arg index="2" value="mykey" />
+        <property name="protocolCache" ref="protocolCache" />
+	
+	<!--valid issue instant timeframe for assertion in seconds-->
+	<property name="DEFAULT_RESPONSE_SKEW"  value="180"/>
+	<!-- this should only be true in a local network scenario..this will cause address matching exceptions if used with an external SAML provider due to proxies and NAT
+	checking this is not required per spec but only advisory and doesn't work well over internet scenarios due to proxies etc.-->
+	<property name="checkSubjectLocality" value="false"/>
+    </bean>
+
+    <!-- XML parser pool needed for OpenSAML parsing -->
+    <bean id="parserPool" class="org.opensaml.xml.parse.BasicParserPool"/>
+
+    <!-- Cache of sent and stored message -->
+    <bean id="protocolCache" class="org.springframework.security.saml.assertion.ProtocolCache" scope="singleton" />
+
+	
+	
+	
+	<bean id="externalDataSynchronizer"
+          class="com.jaspersoft.jasperserver.ps.SAMLMTExternalDataSynchronizerImpl">
+       
+        <property name="externalUserProcessors">
+            <list>
+                <ref local="externalTenantSetupProcessor"/>
+                <ref local="mtExternalUserSetupProcessor"/>
+				<!--
+                <ref local="externalUserFolderProcessor"/>
+				-->
+            </list>
+        </property>
+    </bean>
+
+    <bean id="abstractExternalProcessor" class="com.jaspersoft.jasperserver.api.security.externalAuth.processors.AbstractExternalUserProcessor" abstract="true">
+        <property name="repositoryService" ref="${bean.repositoryService}"/>
+        <property name="userAuthorityService" ref="${bean.userAuthorityService}"/>
+        <property name="tenantService" ref="${bean.tenantService}"/>
+        <property name="profileAttributeService" ref="profileAttributeService"/>
+        <property name="objectPermissionService" ref="objectPermissionService"/>
+    </bean>
+
+    <bean id="mtExternalUserSetupProcessor" class="com.jaspersoft.jasperserver.multipleTenancy.security.externalAuth.processors.MTExternalUserSetupProcessor" parent="abstractExternalProcessor">
+        <!--Default permitted role characters; others are removed. Change regular expression to allow other chars.
+                    <property name="permittedExternalRoleNameRegex" value="[A-Za-z0-9_]+"/>-->
+
+        <property name="organizationRoleMap">
+            <map>
+                <!-- Example of mapping customer roles to JRS roles -->
+                <entry>
+                    <key>
+                        <value>ROLE_ADMIN_EXTERNAL_ORGANIZATION</value>
+                    </key>
+                    <!-- JRS role that the <key> external role is mapped to-->
+                    <!--<value>ROLE_ADMINISTRATOR</value>-->
+                    <value>ROLE_ADMINISTRATOR|*</value>
+                </entry>
+            </map>
+        </property>
+
+        <property name="userAuthorityService">
+            <ref bean="${bean.internalUserAuthorityService}"/>
+        </property>
+        <property name="defaultInternalRoles">
+            <list>
+                <value>ROLE_USER</value>
+            </list>
+        </property>
+        <property name="externalAuthProperties" ><ref local="externalAuthProperties"/></property>
+    </bean>
+
+    <bean id="externalUserFolderProcessor"
+          class="com.jaspersoft.jasperserver.api.security.externalAuth.processors.ExternalUserFolderProcessor"
+          parent="abstractExternalProcessor">
+        <property name="repositoryService" ref="${bean.unsecureRepositoryService}"/>
+    </bean>
+
+    <bean id="externalTenantSetupProcessor" class="com.jaspersoft.jasperserver.multipleTenancy.security.externalAuth.processors.MTExternalTenantSetupProcessor" parent="abstractExternalProcessor">
+        <property name="multiTenancyService"><ref bean="internalMultiTenancyService"/></property>
+        <property name="defaultOrganization" value="organization_1"/>
+        <property name="tenantIdNotSupportedSymbols" value="#{configurationBean.tenantIdNotSupportedSymbols}"/>
+
+        <!-- User credentials are setup in js.externalAuth.properties-->
+        <property name="externalTenantSetupUsers">
+            <list>
+                <bean class="com.jaspersoft.jasperserver.multipleTenancy.security.externalAuth.processors.MTAbstractExternalProcessor.ExternalTenantSetupUser">
+                    <property name="username" value="${new.tenant.user.name.1}"/>
+                    <property name="fullName" value="${new.tenant.user.fullname.1}"/>
+                    <property name="password" value="${new.tenant.user.password.1}"/>
+                    <property name="emailAddress" value="${new.tenant.user.email.1}"/>
+                    <property name="roleSet">
+                        <set>
+                            <value>ROLE_ADMINISTRATOR</value>
+                            <value>ROLE_USER</value>
+                        </set>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+	
+	<bean id="externalAuthProperties" class="com.jaspersoft.jasperserver.api.security.externalAuth.ExternalAuthProperties">
+        <property name="authenticationProcessingUrl" value="/j_spring_security_check"/>
+        <property name="ssoServerLocation" value="http://localhost"/>
+        <property name="externalLoginUrl" value="http://localhost:8061/jasperserver-pro/saml/login"/>
+        <property name="loginUrl" value="http://localhost:8061/jasperserver-pro/saml/login"/>
+        <property name="logoutUrl" value="http://localhost/simplesaml/saml2/idp/SingleLogoutService.php?ReturnTo=http://localhost:8061/jasperserver-pro/saml/login"/>
+    </bean>
+</beans>
