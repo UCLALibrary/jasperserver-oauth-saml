@@ -1,0 +1,199 @@
+<!--
+ ~ Copyright (C) 2005 - 2012 Jaspersoft Corporation. All rights reserved.
+ ~ http://www.jaspersoft.com.
+ ~ Licensed under commercial Jaspersoft Subscription License Agreement
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <!-- ############ SSO auth ############
+      - Sample configuration of SSO via JasperServer API
+    -->
+
+	  
+	  <bean id="proxyPreAuthenticatedProcessingFilter" class="com.jaspersoft.jasperserver.ps.OAuth.OAuthPreAuthenticationFilter">
+<property name="externalDataSynchronizer" ref="externalDataSynchronizer"/>
+  <property name="authenticationManager" ref="oAuthAuthenticationManager"/>
+       
+		<property name="authenticationFailureUrl">
+            <value>/oauth</value>
+        </property>
+        <property name="defaultTargetUrl">
+            <value>/loginsuccess.html</value>
+        </property>
+        <property name="filterProcessesUrl">
+            <value>/oauth</value>
+        </property>
+       
+        <property name="authorization_location" >
+            <value>http://localhost:8080/oauth2/authorize</value>
+        </property>
+        <property name="client_id" >
+            <value>js61</value>
+        </property>
+        <property name="redirecturl" >
+            <value>http://localhost:8061/jasperserver-pro/oauth</value>
+        </property>
+        <property name="token_location" >
+            <value>http://localhost:8080/oauth2/token</value>
+        </property>
+        <property name="clientsecret" >
+            <value>9700fc55-85fc-4682-807d-a881054fa665</value>
+        </property>
+		<property name="scopes">
+			<value>uri:JaspersoftReportingServer</value>
+			</property>
+      </bean>
+	  
+	  
+	  
+        
+		<bean id="proxyAuthenticationProcessingFilter"
+          class="com.jaspersoft.jasperserver.api.security.EncryptionAuthenticationProcessingFilter">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="postOnly" value="false"/>
+        <property name="authenticationFailureHandler" ref="failureHandler" />
+        <property name="authenticationSuccessHandler" ref="successHandler" />
+        <property name="filterProcessesUrl" value="/j_spring_security_check"/>
+        <property name="allowSessionCreation" value="true" />
+        <property name="sessionAuthenticationStrategy" ref="sas"/>
+    </bean>
+		
+	
+		
+	   <bean id="oAuthAuthenticationProvider" class="com.jaspersoft.jasperserver.ps.OAuth.OAuthAuthenticationProvider">
+        <property name="accessTokenValidator" ref="OAuthAccessTokenValidator"/>
+        <property name="userDetailsService" ref="oAuthUserDetailsService"/>
+    </bean>
+	  
+	  <bean id="OAuthAccessTokenValidator" class="com.jaspersoft.jasperserver.ps.OAuth.OAuthAccessTokenValidator">
+       <property name="userdetails_location">
+	   <value>http://localhost:8080/v1/tokeninfo</value>
+	   </property>
+	   <property name="userdetails_key">
+	   <value>27c88aca-11dc-4022-9753-53f96a1fefc6</value>
+	   </property>
+	   <property name="userdetails_secret">
+	   <value>0ebdb578-d571-43f0-91f7-ce0e656a35f0</value>
+	   </property>
+       <property name="useBearerHeader">
+           <value>false</value>
+        </property>
+    </bean>
+	
+	
+	<bean id="oAuthUserDetailsService" class="com.jaspersoft.jasperserver.ps.OAuth.OAuthUserDetailsServiceImpl">
+       </bean>
+	
+	    <bean id="oAuthAuthenticationManager" class="com.jaspersoft.jasperserver.api.security.externalAuth.wrappers.spring.JSProviderManager">
+        <property name="providers">
+            <list>
+                <ref local="oAuthAuthenticationProvider"/>
+                <ref bean="${bean.daoAuthenticationProvider}"/>
+                <!-- anonymousAuthenticationProvider only needed if filterInvocationInterceptor.alwaysReauthenticate is set to true
+                    <ref bean="anonymousAuthenticationProvider"/>-->
+            </list>
+        </property>
+    </bean>
+	
+	  <bean id="externalDataSynchronizer"
+          class="com.jaspersoft.jasperserver.ps.OAuth.OAuthMTExternalDataSynchronizerImpl">
+        <property name="externalUserProcessors">
+            <list>
+                <ref local="externalTenantSetupProcessor"/>
+                <ref local="mtExternalUserSetupProcessor"/>
+                 <!-- OPTIONAL processor: comment out if no profile attributes are expected
+                  <ref local="externalProfileAttributeProcessor"/>  -->
+				<!-- uncomment for user home folder creation processing
+                <ref local="externalUserFolderProcessor"/>
+				-->
+				
+            </list>
+        </property>
+    </bean>
+	
+	
+	
+
+    <bean id="abstractExternalProcessor" class="com.jaspersoft.jasperserver.api.security.externalAuth.processors.AbstractExternalUserProcessor" abstract="true">
+        <property name="repositoryService" ref="${bean.repositoryService}"/>
+        <property name="userAuthorityService" ref="${bean.userAuthorityService}"/>
+        <property name="tenantService" ref="${bean.tenantService}"/>
+        <property name="profileAttributeService" ref="profileAttributeService"/>
+        <property name="objectPermissionService" ref="objectPermissionService"/>
+    </bean>
+
+    <bean id="mtExternalUserSetupProcessor" class="com.jaspersoft.jasperserver.multipleTenancy.security.externalAuth.processors.MTExternalUserSetupProcessor" parent="abstractExternalProcessor">
+        <!--Default permitted role characters; others are removed. Change regular expression to allow other chars.
+                    <property name="permittedExternalRoleNameRegex" value="[A-Za-z0-9_]+"/>-->
+
+        <property name="organizationRoleMap">
+            <map>
+                <!-- Example of mapping customer roles to JRS roles -->
+                <entry>
+                    <key>
+                        <value>ROLE_ADMIN_EXTERNAL_ORGANIZATION</value>
+                    </key>
+                    <!-- JRS role that the <key> external role is mapped to-->
+                    <!--<value>ROLE_ADMINISTRATOR</value>-->
+                    <value>ROLE_ADMINISTRATOR|*</value>
+                </entry>
+            </map>
+        </property>
+
+        <property name="userAuthorityService">
+            <ref bean="${bean.internalUserAuthorityService}"/>
+        </property>
+        <property name="defaultInternalRoles">
+            <list>
+                <value>ROLE_USER</value>
+            </list>
+        </property>
+
+       
+    </bean>
+
+    <bean id="externalUserFolderProcessor"
+          class="com.jaspersoft.jasperserver.api.security.externalAuth.processors.ExternalUserFolderProcessor"
+          parent="abstractExternalProcessor">
+        <property name="repositoryService" ref="${bean.unsecureRepositoryService}"/>
+    </bean>
+
+    <bean id="externalTenantSetupProcessor" class="com.jaspersoft.jasperserver.multipleTenancy.security.externalAuth.processors.MTExternalTenantSetupProcessor" parent="abstractExternalProcessor">
+        <property name="multiTenancyService"><ref bean="internalMultiTenancyService"/></property>
+        <property name="defaultOrganization" value="organization_1"/>
+        <property name="tenantIdNotSupportedSymbols" value="#{configurationBean.tenantIdNotSupportedSymbols}"/>
+
+        <!-- User credentials are setup in js.externalAuth.properties-->
+        <property name="externalTenantSetupUsers">
+            <list>
+                <bean class="com.jaspersoft.jasperserver.multipleTenancy.security.externalAuth.processors.MTAbstractExternalProcessor.ExternalTenantSetupUser">
+                    <property name="username" value="${new.tenant.user.name.1}"/>
+                    <property name="fullName" value="${new.tenant.user.fullname.1}"/>
+                    <property name="password" value="${new.tenant.user.password.1}"/>
+                    <property name="emailAddress" value="${new.tenant.user.email.1}"/>
+                    <property name="roleSet">
+                        <set>
+                            <value>ROLE_ADMINISTRATOR</value>
+                            <value>ROLE_USER</value>
+                        </set>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="externalProfileAttributeProcessor" class="com.jaspersoft.jasperserver.api.security.externalAuth.processors.ExternalProfileAttributeProcessor" parent="abstractExternalProcessor">
+    </bean>
+	<!--
+	<bean id="externalAuthProperties" class="com.jaspersoft.jasperserver.api.security.externalAuth.ExternalAuthProperties">
+       
+       
+        <property name="logoutUrl" value="<logout_service_url>"/>
+
+    </bean>
+	-->
+  
+</beans>
