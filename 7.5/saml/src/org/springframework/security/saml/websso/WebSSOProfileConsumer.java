@@ -1,4 +1,4 @@
-/* Copyright 2009 Vladimir Schäfer
+/* Copyright 2009 Vladimir Schï¿½fer
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ import java.util.List;
  * response from IDP. In case the response is correctly validated and no errors are found the SAMLCredential\
  * is created.
  *
- * @author Vladimir Schäfer
+ * @author Vladimir Schï¿½fer
  */
 public class WebSSOProfileConsumer
 {

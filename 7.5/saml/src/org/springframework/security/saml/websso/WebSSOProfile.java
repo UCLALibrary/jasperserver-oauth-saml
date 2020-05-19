@@ -1,4 +1,4 @@
-/* Copyright 2009 Vladimir Schäfer
+/* Copyright 2009 Vladimir Schï¿½fer
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,9 @@ import org.springframework.security.saml.assertion.ProtocolCache;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.saml.util.SAMLUtil;
 
+import com.jaspersoft.jasperserver.ps.SSLOFFLOADHTTPPostDecoder;
+import com.jaspersoft.jasperserver.ps.SSLOFFLOADHTTPRedirectDeflateDecoder;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -63,7 +66,7 @@ import java.util.Random;
  * process Response coming from IDP or IDP initialized SSO. HTTP-POST and HTTP-Redirect
  * bindings are supported.
  *
- * @author Vladimir Schäfer
+ * @author Vladimir Schï¿½fer
  */
 public class WebSSOProfile
 {
@@ -255,62 +258,47 @@ public class WebSSOProfile
    * @throws org.opensaml.xml.security.SecurityException
    *                                   error verifying message
    */
-  public BasicSAMLMessageContext processSSO( HttpServletRequest request )
-    throws SAMLException, MetadataProviderException, MessageDecodingException,
-           org.opensaml.xml.security.SecurityException
-  {
+  public BasicSAMLMessageContext processSSO(HttpServletRequest request) throws SAMLException, MetadataProviderException, MessageDecodingException, org.opensaml.xml.security.SecurityException {
 
-    BasicSAMLMessageContext<SAMLObject, AuthnRequest, SAMLObject> samlContext =
-      new BasicSAMLMessageContext<SAMLObject, AuthnRequest, SAMLObject>();
-    samlContext.setInboundMessageTransport( new HttpServletRequestAdapter( request ) );
-    log.debug( "Metadata:  Set LocalEntityRole:  " + SPSSODescriptor.DEFAULT_ELEMENT_NAME );
-    samlContext.setLocalEntityRole( SPSSODescriptor.DEFAULT_ELEMENT_NAME );
-    samlContext.setMetadataProvider( metadata );
-    samlContext.setLocalEntityId( metadata.getHostedSPName() );
-    log.debug( "Metadata:  Set LocalEntityId: " + metadata.getHostedSPName() );
-    samlContext.setLocalEntityRoleMetadata( metadata.getRole( metadata.getHostedSPName(),
-                                                              SPSSODescriptor.DEFAULT_ELEMENT_NAME,
-                                                              SAMLConstants.SAML20P_NS ) );
-    log.debug( "Metadata:  Set LocalEntityMetadata:  " + metadata.getEntityDescriptor( metadata.getHostedSPName() ) );
-    samlContext.setLocalEntityMetadata( metadata.getEntityDescriptor( metadata.getHostedSPName() ) );
+      BasicSAMLMessageContext<SAMLObject, AuthnRequest, SAMLObject> samlContext = 
+      		new BasicSAMLMessageContext<SAMLObject, AuthnRequest, SAMLObject>();
+      samlContext.setInboundMessageTransport(new HttpServletRequestAdapter(request));
+      log.debug("Metadata:  Set LocalEntityRole:  " + SPSSODescriptor.DEFAULT_ELEMENT_NAME);
+      samlContext.setLocalEntityRole(SPSSODescriptor.DEFAULT_ELEMENT_NAME);
+      samlContext.setMetadataProvider(metadata);
+      samlContext.setLocalEntityId(metadata.getHostedSPName());
+      log.debug("Metadata:  Set LocalEntityId: " + metadata.getHostedSPName());
+      samlContext.setLocalEntityRoleMetadata(metadata.getRole(metadata.getHostedSPName(), SPSSODescriptor.DEFAULT_ELEMENT_NAME, SAMLConstants.SAML20P_NS));
+      log.debug("Metadata:  Set LocalEntityMetadata:  " + metadata.getEntityDescriptor(metadata.getHostedSPName()) );
+      samlContext.setLocalEntityMetadata(metadata.getEntityDescriptor(metadata.getHostedSPName()));
+     
+      BaseSAML2MessageDecoder decoder;
+      log.debug("Request method received:  " + request.getMethod());
+      if (request.getMethod().equals("POST")) {
+      	log.debug("Setting inbound SAML Protocol: " + SAMLConstants.SAML2_POST_BINDING_URI );
+          samlContext.setInboundSAMLProtocol(SAMLConstants.SAML2_POST_BINDING_URI);
+          decoder = new SSLOFFLOADHTTPPostDecoder(parser);
+      } else if (request.getMethod().equals("GET")) {
+      	log.debug("Setting inbound SAML Protocol: " + SAMLConstants.SAML2_REDIRECT_BINDING_URI );
+          samlContext.setInboundSAMLProtocol(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+          decoder = new SSLOFFLOADHTTPRedirectDeflateDecoder(parser);
+         
+      } else {
+          throw new SAMLException("Unsupported request");
+      }
+      log.debug("Attempting to decode SAML using decoder.");
+      decoder.decode(samlContext);
+      log.debug("Successfully decoded SAML");
+      log.debug("Metadata:  Set PeerEntityRole:  " + IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+      samlContext.setPeerEntityRole(IDPSSODescriptor.DEFAULT_ELEMENT_NAME);
+      samlContext.setPeerEntityId(metadata.getDefaultIDP());
+      samlContext.setPeerEntityMetadata(metadata.getEntityDescriptor(metadata.getDefaultIDP()));
+      samlContext.setPeerEntityId(samlContext.getPeerEntityMetadata().getEntityID());
 
-
-    BaseSAML2MessageDecoder decoder;
-    log.debug( "Request method received:  " + request.getMethod() );
-    if ( request.getMethod().equals( "POST" ) )
-    {
-      log.debug( "Setting inbound SAML Protocol: " + SAMLConstants.SAML2_POST_BINDING_URI );
-      samlContext.setInboundSAMLProtocol( SAMLConstants.SAML2_POST_BINDING_URI );
-      decoder = new HTTPPostDecoder( parser );
-    }
-    else if ( request.getMethod().equals( "GET" ) )
-    {
-      log.debug( "Setting inbound SAML Protocol: " + SAMLConstants.SAML2_REDIRECT_BINDING_URI );
-      samlContext.setInboundSAMLProtocol( SAMLConstants.SAML2_REDIRECT_BINDING_URI );
-      decoder = new HTTPRedirectDeflateDecoder( parser );
-    }
-    else
-    {
-      throw new SAMLException( "Unsupported request" );
-    }
-    log.debug( "Attempting to decode SAML using decoder." );
-    decoder.decode( samlContext );
-    log.debug( "Successfully decoded SAML" );
-    log.debug( "Metadata:  Set PeerEntityRole:  " + IDPSSODescriptor.DEFAULT_ELEMENT_NAME );
-    samlContext.setPeerEntityRole( IDPSSODescriptor.DEFAULT_ELEMENT_NAME );
-    samlContext.setPeerEntityId( metadata.getDefaultIDP() );
-    samlContext.setPeerEntityMetadata( metadata.getEntityDescriptor( metadata.getDefaultIDP() ) );
-    samlContext.setPeerEntityId( samlContext.getPeerEntityMetadata().getEntityID() );
-    // log.debug("Setting peer entity id:  " + samlContext.getPeerEntityMetadata().getEntityID());
-
-    //  SAMLObject message = samlContext.getInboundSAMLMessage();
-    //  if(Log.isDebugEnabled()){
-    //  SAMLUtil.debugprintSAMLObject(message);
-    // }
-
-    return samlContext;
+      return samlContext;
 
   }
+
 
   /**
    * Returns Credential object used to sign the message issued by this entity.
